@@ -14,11 +14,13 @@ jobs:
     permissions: {contents: read}
     steps:
       - id: app
-        uses: actions/create-github-app-token@v2
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
         with:
           app-id: ${{ vars.PLAYBOOK_BOT_APP_ID }}
           private-key: ${{ secrets.PLAYBOOK_BOT_PRIVATE_KEY }}
-      - uses: actions/checkout@v4
+          permission-contents: write        # scope the token to what this job needs (zizmor)
+          permission-pull-requests: write
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: {token: "${{ steps.app.outputs.token }}"}
       - name: Find latest playbook release
         id: latest

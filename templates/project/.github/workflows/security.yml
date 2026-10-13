@@ -20,3 +20,4 @@ jobs:
     with:
       codeql-languages: '<<FILL: ["javascript-typescript","python"]>>'
       iac-paths: '<<FILL: ["infra"]>>'
+      dependency-review: true   # <<FILL: true, or false on a private repo without GitHub Code Security>>

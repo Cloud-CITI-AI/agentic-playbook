@@ -11,6 +11,12 @@ Every entry that changes agent behaviour must reference its rule proposal (`RP-N
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-10-13
+### Changed
+- Every third-party action in the reusable workflows and project templates is pinned to a commit SHA (`@<sha> # <tag>`), as zizmor's blanket policy requires.
+- `reusable-security.yml`: CodeQL is skipped when `codeql-languages` is `'[]'`, and the new boolean input `dependency-review` (default `true`) turns off dependency review. Both need GitHub Code Security on private repos.
+- Project template `security.yml` exposes `dependency-review`; `playbook-sync.yml` scopes its GitHub App token to `contents` and `pull-requests` write.
+
 ## [1.0.1] - 2026-10-13
 ### Fixed
 - `templates/project/.github/workflows/security.yml`: grant `pull-requests: write` to the reusable security workflow. Its `dependency-review` job requests that permission (to comment its summary on failure), and a caller granting only `read` made every security run fail at startup.
