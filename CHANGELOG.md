@@ -9,6 +9,13 @@ Version semantics for the playbook:
 
 Every entry that changes agent behaviour must reference its rule proposal (`RP-NNNN`) and the eval run that validated it.
 
+## [1.1.0](https://github.com/cloudcitiwa/agentic-playbook/compare/v1.0.1...v1.1.0) (2026-10-13)
+
+
+### Features
+
+* **workflows:** pin actions to SHAs; allow turning off CodeQL and dependency review ([f6dab59](https://github.com/cloudcitiwa/agentic-playbook/commit/f6dab59a668f4840ba361d6646ead92ec0821cde))
+
 ## [Unreleased]
 
 ## [1.0.2] - 2026-10-13
