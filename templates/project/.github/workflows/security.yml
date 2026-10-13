@@ -15,7 +15,7 @@ jobs:
     permissions:
       contents: read
       security-events: write
-      pull-requests: read
+      pull-requests: write   # dependency-review comments its summary on failure
       actions: read
     with:
       codeql-languages: '<<FILL: ["javascript-typescript","python"]>>'

@@ -11,6 +11,10 @@ Every entry that changes agent behaviour must reference its rule proposal (`RP-N
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-13
+### Fixed
+- `templates/project/.github/workflows/security.yml`: grant `pull-requests: write` to the reusable security workflow. Its `dependency-review` job requests that permission (to comment its summary on failure), and a caller granting only `read` made every security run fail at startup.
+
 ## [1.0.0] - 2026-10-06
 ### Added
 - Initial handbook (sections 0 to 14), glossary, ADR-0001 to ADR-0004.
