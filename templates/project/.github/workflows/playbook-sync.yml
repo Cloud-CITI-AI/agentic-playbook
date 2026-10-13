@@ -24,7 +24,7 @@ jobs:
         id: latest
         env: {GH_TOKEN: "${{ steps.app.outputs.token }}"}
         run: |
-          latest=$(gh release view --repo <org>/agentic-playbook --json tagName -q .tagName)
+          latest=$(gh release view --repo cloudcitiwa/agentic-playbook --json tagName -q .tagName)
           current=$(cat .playbook-version)
           echo "latest=$latest" >> "$GITHUB_OUTPUT"
           echo "current=$current" >> "$GITHUB_OUTPUT"
@@ -32,12 +32,12 @@ jobs:
         if: steps.latest.outputs.latest != steps.latest.outputs.current
         env: {GH_TOKEN: "${{ steps.app.outputs.token }}", NEW: "${{ steps.latest.outputs.latest }}"}
         run: |
-          gh release download "$NEW" --repo <org>/agentic-playbook --archive tar.gz -O /tmp/pb.tgz
+          gh release download "$NEW" --repo cloudcitiwa/agentic-playbook --archive tar.gz -O /tmp/pb.tgz
           mkdir -p /tmp/pb && tar -xzf /tmp/pb.tgz -C /tmp/pb --strip-components=1
           bash /tmp/pb/scripts/sync.sh --apply --version "$NEW"
           git switch -c "chore/playbook-$NEW"
           git -c user.name="playbook-bot" -c user.email="playbook-bot@users.noreply.github.com" commit -am "chore(playbook): update managed files to $NEW"
           git push -u origin HEAD
           gh pr create --title "chore(playbook): update to $NEW" \
-            --body "Automated playbook update. Review the CHANGELOG: https://github.com/<org>/agentic-playbook/releases/tag/$NEW . Merge within 10 business days (docs/02 §2.5)." \
+            --body "Automated playbook update. Review the CHANGELOG: https://github.com/cloudcitiwa/agentic-playbook/releases/tag/$NEW . Merge within 10 business days (docs/02 §2.5)." \
             --label playbook-sync

@@ -18,7 +18,7 @@ if [[ -f "$here/playbook_sync.py" && -d "$here/../templates" ]]; then
 else
   # Downloaded standalone: fetch the release tarball for the requested version.
   tmp="$(mktemp -d)"
-  curl -fsSL "https://github.com/<org>/agentic-playbook/archive/refs/tags/${version}.tar.gz" | tar -xz -C "$tmp" --strip-components=1
+  curl -fsSL "https://github.com/cloudcitiwa/agentic-playbook/archive/refs/tags/${version}.tar.gz" | tar -xz -C "$tmp" --strip-components=1
   pb="$tmp"
 fi
 python3 "$pb/scripts/playbook_sync.py" bootstrap "${args[@]}"

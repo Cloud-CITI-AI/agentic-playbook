@@ -11,7 +11,7 @@ permissions: {}
 
 jobs:
   scan:
-    uses: <org>/agentic-playbook/.github/workflows/reusable-security.yml@<<PLAYBOOK_SHA>> # v1.0.0
+    uses: cloudcitiwa/agentic-playbook/.github/workflows/reusable-security.yml@<<PLAYBOOK_SHA>> # v1.0.0
     permissions:
       contents: read
       security-events: write

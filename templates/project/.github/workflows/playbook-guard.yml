@@ -23,7 +23,7 @@ jobs:
         run: echo "version=$(cat .playbook-version)" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v4
         with:
-          repository: <org>/agentic-playbook
+          repository: cloudcitiwa/agentic-playbook
           ref: ${{ steps.v.outputs.version }}
           path: .playbook
           persist-credentials: false
