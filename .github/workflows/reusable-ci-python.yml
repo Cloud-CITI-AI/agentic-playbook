@@ -1,0 +1,47 @@
+# Reusable CI for Python packages (uv + make targets).
+name: reusable-ci-python
+on:
+  workflow_call:
+    inputs:
+      packages: {type: string, required: true}
+      python-version: {type: string, required: false, default: "3.13"}
+      diff-coverage-min: {type: number, required: false, default: 80}
+permissions: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    strategy:
+      fail-fast: false
+      matrix:
+        pkg: ${{ fromJSON(inputs.packages) }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.pkg }}
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: astral-sh/setup-uv@v5
+        with: {python-version: "${{ inputs.python-version }}"}
+      - name: Install (frozen lockfile)
+        run: make install
+      - run: make lint
+      - run: make typecheck
+      - run: make test-unit
+      - name: Integration tests (Testcontainers)
+        run: make test-integration
+      - name: Contract snapshot
+        run: make test-contract
+      - name: Migration lint
+        run: |
+          if grep -q '^migration-lint:' Makefile; then make migration-lint; fi
+      - name: Diff coverage
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          MIN: ${{ inputs.diff-coverage-min }}
+        run: uv run diff-cover coverage.xml --compare-branch="origin/$BASE_REF" --fail-under="$MIN"
+      - name: Mutation testing (domain code)
+        if: github.event_name == 'pull_request'
+        run: make test-mutation

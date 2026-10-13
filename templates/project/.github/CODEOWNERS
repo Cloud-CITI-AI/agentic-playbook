@@ -1,0 +1,16 @@
+# managed-by: agentic-playbook v1.0.0 — fill team handles; keep protected-path rules at the bottom (last match wins)
+*                                  @<<FILL: org/team-owning-this-repo>>
+
+# Tier High paths: require domain owner review
+<<FILL: services/*/src/auth/**>>   @<<FILL: org/identity>>
+<<FILL: **/migrations/**>>         @<<FILL: org/data-platform>>
+
+# Protected paths (rule X1): agents cannot change these; humans need platform + security approval
+/AGENTS.md                         @org/platform-eng
+**/AGENTS.md                       @org/platform-eng
+/CLAUDE.md                         @org/platform-eng
+/.claude/                          @org/platform-eng @org/security
+/.cursor/                          @org/platform-eng
+/.github/                          @org/platform-eng @org/security
+/.github/CODEOWNERS                @org/platform-eng @org/security
+/renovate.json                     @org/platform-eng @org/security

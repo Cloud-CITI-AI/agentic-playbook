@@ -1,0 +1,13 @@
+# managed-by: agentic-playbook v1.0.0 — install: `lefthook install` (bootstrap does this)
+pre-commit:
+  parallel: true
+  commands:
+    secrets:
+      run: gitleaks git --staged --redact --no-banner
+    format:
+      glob: "*.{ts,tsx,js,jsx,json,md,css,py}"
+      run: <<FILL: pnpm exec biome check --staged || ruff format --check {staged_files}>>
+commit-msg:
+  commands:
+    conventional:
+      run: npx --no -- commitlint --edit {1}

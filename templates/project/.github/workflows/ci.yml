@@ -1,0 +1,70 @@
+# managed-by: agentic-playbook v1.0.0
+# Required check names (set in the org ruleset): "ci / verify", "ci / pr-size"
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+  merge_group:
+permissions: {}
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  node:
+    # Remove this job if the repo has no Node/TypeScript packages.
+    uses: <org>/agentic-playbook/.github/workflows/reusable-ci-node.yml@<<PLAYBOOK_SHA>> # v1.0.0
+    permissions:
+      contents: read
+      pull-requests: read
+    with:
+      packages: '<<FILL: ["apps/web","services/api"]>>'
+      e2e-packages: '<<FILL: ["apps/web"]>>'
+      node-version: "24"
+      diff-coverage-min: 80
+      mutation-break: 60
+
+  python:
+    # Remove this job if the repo has no Python packages.
+    uses: <org>/agentic-playbook/.github/workflows/reusable-ci-python.yml@<<PLAYBOOK_SHA>> # v1.0.0
+    permissions:
+      contents: read
+    with:
+      packages: '<<FILL: ["services/pricing"]>>'
+      python-version: "3.13"
+      diff-coverage-min: 80
+
+  pr-size:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: actions/checkout@v4
+        with: {repository: <org>/agentic-playbook, ref: v1.0.0, path: .playbook, persist-credentials: false}
+      - name: Enforce PR size (N3)
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+        run: bash .playbook/scripts/check-pr-size.sh
+
+  verify:
+    # Single aggregate check so the ruleset needs only one name per workflow.
+    if: always()
+    needs: [node, python, pr-size]
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: All CI jobs passed or were skipped
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "results: $RESULTS"
+          for r in $RESULTS; do
+            if [ "$r" != "success" ] && [ "$r" != "skipped" ]; then exit 1; fi
+          done

@@ -1,0 +1,13 @@
+# Releases of the playbook itself: release-please PR approved by platform-eng; eval gate must pass on the release PR.
+name: release
+on:
+  push:
+    branches: [main]
+permissions: {}
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    permissions: {contents: write, pull-requests: write}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with: {release-type: simple}

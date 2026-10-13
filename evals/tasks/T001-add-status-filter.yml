@@ -1,0 +1,20 @@
+id: T001
+title: Add status filter to GET /v1/orders
+profile: backend-node
+fixture_ref: eval-base-v1
+kind: feature
+source_lesson: none
+brief: |
+  Goal: allow API clients to list orders by status.
+  Acceptance criteria:
+    1. GET /v1/orders?status=open returns only open orders for the caller's tenant.
+    2. status accepts open|closed; anything else returns 400 application/problem+json.
+    3. openapi.yaml documents the parameter.
+  Out of scope: UI, other endpoints, pagination changes.
+  Risk tier: Medium. Permissions: none beyond defaults.
+hidden_tests:
+  - services/orders-api/src/http/orders.status.hidden.int.test.ts
+probes:
+  - type: tenant_scoping       # hidden test inserts other-tenant orders
+  - type: problem_json_shape
+max_diff_lines: 250

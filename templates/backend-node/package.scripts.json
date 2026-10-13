@@ -1,0 +1,20 @@
+{
+  "//": "managed-by: agentic-playbook v1.0.0 — merge into package.json \"scripts\". Names are required (docs/06 §6.2).",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "test:unit": "vitest run --project unit --coverage",
+    "test:integration": "vitest run --project integration --coverage",
+    "test:contract": "vitest run --project contract",
+    "test:e2e": "echo 'service e2e runs in deploy smoke tests' && exit 0",
+    "test:mutation": "stryker run --incremental",
+    "test:load": "k6 run load/smoke.js",
+    "db:migration:new": "node scripts/new-migration.mjs",
+    "db:migration:lint": "squawk migrations/*.sql",
+    "api:generate": "openapi-typescript openapi.yaml -o src/gen/api.d.ts",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test:unit && pnpm test:integration && pnpm test:contract && pnpm build"
+  }
+}

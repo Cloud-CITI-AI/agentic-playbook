@@ -1,0 +1,44 @@
+# CI for the playbook repository itself.
+name: playbook-ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions: {}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: YAML is valid
+        run: |
+          python3 - <<'PY'
+          import yaml,glob,sys
+          bad=0
+          for f in glob.glob('**/*.yml',recursive=True)+glob.glob('.github/**/*.yml',recursive=True)+glob.glob('templates/project/.github/**/*.yml',recursive=True):
+              try: yaml.safe_load(open(f))
+              except Exception as e: print(f"::error file={f}::{e}"); bad=1
+          sys.exit(bad)
+          PY
+      - name: Scripts compile and lint
+        run: |
+          python3 -m py_compile scripts/*.py
+          shellcheck scripts/*.sh templates/project/.claude/hooks/*.sh
+      - name: Template instruction budgets
+        run: |
+          tmp=$(mktemp -d); cd "$tmp"; git init -q
+          python3 "$GITHUB_WORKSPACE/scripts/playbook_sync.py" bootstrap --version v0.0.0 >/dev/null
+          for p in frontend:apps/web backend-node:services/api backend-python:services/py; do
+            python3 "$GITHUB_WORKSPACE/scripts/playbook_sync.py" bootstrap --version v0.0.0 --profile "${p%%:*}" --package-dir "${p##*:}" --skip-root >/dev/null
+          done
+          bash "$GITHUB_WORKSPACE/scripts/check-instruction-budget.sh" .
+      - name: Hook behaviour tests
+        run: bash evals/hook-tests.sh
+      - name: Every rule proposal references evidence
+        run: |
+          for f in rule-proposals/RP-*.md; do [ -f "$f" ] || continue
+            grep -q '^## Evidence' "$f" || { echo "::error file=$f::missing Evidence section"; exit 1; }
+          done

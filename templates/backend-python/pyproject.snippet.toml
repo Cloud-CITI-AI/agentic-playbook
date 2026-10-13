@@ -1,0 +1,43 @@
+# managed-by: agentic-playbook v1.0.0 — merge into pyproject.toml
+[project]
+requires-python = ">=3.13"
+
+[dependency-groups]
+dev = [
+  "ruff>=0.13",
+  "mypy>=1.18",
+  "pytest>=8.4",
+  "pytest-asyncio>=1.2",
+  "pytest-cov>=7.0",
+  "testcontainers[postgres]>=4.13",
+  "diff-cover>=9.6",
+  "mutmut>=3.3",
+  "schemathesis>=4.1",
+]
+
+[tool.uv]
+# Supply chain: refuse packages uploaded in the last 24h (uv `exclude-newer` takes a timestamp; CI computes it, see Makefile)
+
+[tool.ruff]
+line-length = 110
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "BLE", "ASYNC", "PT", "RET", "SIM", "TRY", "PL", "RUF"]
+ignore = ["TRY003"]
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "PLR2004"]
+
+[tool.mypy]
+strict = true
+plugins = ["pydantic.mypy"]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-markers --cov=src --cov-report=xml:coverage.xml --cov-report=term-missing:skip-covered"
+markers = ["integration: needs Docker (Testcontainers)"]
+asyncio_mode = "auto"
+filterwarnings = ["error"]
+
+[tool.mutmut]
+paths_to_mutate = ["src/<pkg>/domain/"]
+tests_dir = ["tests/unit/"]

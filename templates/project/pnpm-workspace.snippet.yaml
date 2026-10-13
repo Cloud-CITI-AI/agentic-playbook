@@ -1,0 +1,8 @@
+# managed-by: agentic-playbook v1.0.0 — merge these keys into pnpm-workspace.yaml (pnpm >= 10.16; pnpm 11 defaults minimumReleaseAge to 1440)
+minimumReleaseAge: 1440          # minutes; refuse versions younger than 1 day (Shai-Hulud class mitigation)
+minimumReleaseAgeExclude: []     # add a package here ONLY for an urgent security fix, with an issue link in the PR
+strictDepBuilds: true            # lifecycle scripts blocked unless allowlisted below
+onlyBuiltDependencies:           # pnpm 10 key; pnpm 11 uses allowBuilds — check your version
+  - esbuild
+  - "@swc/core"
+  - sharp

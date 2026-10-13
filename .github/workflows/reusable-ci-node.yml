@@ -1,0 +1,113 @@
+# Reusable CI for Node/TypeScript packages. Called by project ci.yml pinned to a commit SHA.
+name: reusable-ci-node
+on:
+  workflow_call:
+    inputs:
+      packages: {type: string, required: true, description: 'JSON array of package dirs'}
+      e2e-packages: {type: string, required: false, default: '[]'}
+      node-version: {type: string, required: false, default: "24"}
+      diff-coverage-min: {type: number, required: false, default: 80}
+      mutation-break: {type: number, required: false, default: 60}
+permissions: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    strategy:
+      fail-fast: false
+      matrix:
+        pkg: ${{ fromJSON(inputs.packages) }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.pkg }}
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "${{ inputs.node-version }}", cache: pnpm}
+      - name: Install (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests
+        run: pnpm test:unit
+      - name: Integration tests (Testcontainers; Docker is available on ubuntu-latest)
+        run: pnpm test:integration
+      - name: Contract tests
+        run: pnpm run --if-present test:contract
+      - name: Diff coverage
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          MIN: ${{ inputs.diff-coverage-min }}
+        run: |
+          pipx install diff-cover >/dev/null
+          reports=$(find . -name 'cobertura-coverage.xml' -not -path './node_modules/*')
+          if [ -z "$reports" ]; then echo "::error::No cobertura coverage report found (test:unit must emit cobertura)"; exit 1; fi
+          diff-cover $reports --compare-branch="origin/$BASE_REF" --fail-under="$MIN"
+      - name: Restore Stryker incremental cache
+        if: github.event_name == 'pull_request'
+        uses: actions/cache@v4
+        with:
+          path: ${{ matrix.pkg }}/.stryker-tmp/incremental.json
+          key: stryker-${{ matrix.pkg }}-${{ github.base_ref }}
+      - name: Mutation testing on changed files
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          PKG: ${{ matrix.pkg }}
+        run: |
+          changed=$(git diff --name-only "origin/$BASE_REF"...HEAD -- . | grep -E '\.(ts|tsx)$' | grep -vE '\.(test|spec|stories)\.' | sed "s#^$PKG/##" || true)
+          if [ -z "$changed" ]; then echo "No changed source files; skipping mutation."; exit 0; fi
+          files=$(echo "$changed" | paste -sd, -)
+          pnpm exec stryker run --incremental --mutate "$files"
+      - name: Build
+        run: pnpm build
+
+  e2e:
+    if: inputs.e2e-packages != '[]'
+    needs: test
+    runs-on: ubuntu-latest
+    permissions: {contents: read}
+    strategy:
+      fail-fast: false
+      matrix:
+        pkg: ${{ fromJSON(inputs.e2e-packages) }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.pkg }}
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: "${{ inputs.node-version }}", cache: pnpm}
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm build
+      - name: End-to-end, accessibility and visual tests
+        run: pnpm test:e2e
+      - name: Report flaky tests (passed on retry)
+        if: always()
+        run: |
+          f=test-results/results.json
+          [ -f "$f" ] || exit 0
+          python3 - "$f" <<'PY'
+          import json,sys
+          r=json.load(open(sys.argv[1]))
+          flaky=[]
+          def walk(s):
+              for sp in s.get("specs",[]):
+                  for t in sp.get("tests",[]):
+                      if t.get("status")=="flaky": flaky.append(sp["title"])
+              for c in s.get("suites",[]): walk(c)
+          for s in r.get("suites",[]): walk(s)
+          for t in flaky: print(f"::warning::Flaky test (passed on retry): {t} — quarantine within 24h (docs/06 §6.5)")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with: {name: "playwright-report-${{ strategy.job-index }}", path: "${{ matrix.pkg }}/playwright-report", retention-days: 14}

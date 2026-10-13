@@ -1,0 +1,43 @@
+# managed-by: agentic-playbook — which template files go where, and how sync treats them.
+# mode: managed = must match template (placeholder lines and REPO-SPECIFIC blocks are wildcards)
+#       seed    = copied once by bootstrap; afterwards owned by the repo (presence checked only)
+#       append  = header managed up to the ENTRIES-START marker; entries owned by the repo (append-only)
+# scope: root = repo root; pkg:<profile> = each package directory registered for that profile
+# mode     scope              template path                                         destination (relative to scope)
+managed    root               project/AGENTS.md                                     AGENTS.md
+managed    root               project/CLAUDE.md                                     CLAUDE.md
+append     root               project/LESSONS.md                                    LESSONS.md
+managed    root               project/.github/copilot-instructions.md               .github/copilot-instructions.md
+managed    root               project/.github/instructions/tests.instructions.md    .github/instructions/tests.instructions.md
+managed    root               project/.github/pull_request_template.md              .github/pull_request_template.md
+managed    root               project/.github/ISSUE_TEMPLATE/agent-task.yml         .github/ISSUE_TEMPLATE/agent-task.yml
+managed    root               project/.github/ISSUE_TEMPLATE/bug.yml                .github/ISSUE_TEMPLATE/bug.yml
+managed    root               project/.github/ISSUE_TEMPLATE/feature.yml            .github/ISSUE_TEMPLATE/feature.yml
+seed       root               project/.github/ISSUE_TEMPLATE/config.yml             .github/ISSUE_TEMPLATE/config.yml
+seed       root               project/.github/CODEOWNERS                            .github/CODEOWNERS
+seed       root               project/.github/workflows/ci.yml                      .github/workflows/ci.yml
+managed    root               project/.github/workflows/security.yml                .github/workflows/security.yml
+seed       root               project/.github/workflows/release.yml                 .github/workflows/release.yml
+seed       root               project/.github/workflows/deploy.yml                  .github/workflows/deploy.yml
+managed    root               project/.github/workflows/playbook-guard.yml          .github/workflows/playbook-guard.yml
+managed    root               project/.github/workflows/playbook-sync.yml           .github/workflows/playbook-sync.yml
+managed    root               project/.github/workflows/lessons-digest.yml          .github/workflows/lessons-digest.yml
+managed    root               project/.claude/settings.json                         .claude/settings.json
+managed    root               project/.claude/hooks/protect-instruction-files.sh    .claude/hooks/protect-instruction-files.sh
+seed       root               project/renovate.json                                 renovate.json
+seed       root               project/.npmrc                                        .npmrc
+seed       root               project/lefthook.yml                                  lefthook.yml
+seed       root               project/release-please-config.json                    release-please-config.json
+seed       root               project/.release-please-manifest.json                 .release-please-manifest.json
+managed    root               project/docs/definition-of-done.md                    docs/definition-of-done.md
+managed    root               project/docs/security-checklist.md                    docs/security-checklist.md
+seed       root               project/docs/adr/0000-template.md                     docs/adr/0000-template.md
+managed    pkg:frontend       frontend/AGENTS.md                                    AGENTS.md
+seed       pkg:frontend       frontend/vitest.config.ts                             vitest.config.ts
+seed       pkg:frontend       frontend/playwright.config.ts                         playwright.config.ts
+seed       pkg:frontend       frontend/stryker.config.mjs                           stryker.config.mjs
+managed    pkg:backend-node   backend-node/AGENTS.md                                AGENTS.md
+seed       pkg:backend-node   backend-node/vitest.config.ts                         vitest.config.ts
+seed       pkg:backend-node   backend-node/stryker.config.mjs                       stryker.config.mjs
+managed    pkg:backend-python backend-python/AGENTS.md                              AGENTS.md
+seed       pkg:backend-python backend-python/Makefile                               Makefile

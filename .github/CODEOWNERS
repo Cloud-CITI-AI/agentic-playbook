@@ -1,0 +1,8 @@
+*                                   @org/platform-eng
+/docs/07-security.md                @org/platform-eng @org/security
+/templates/project/.claude/         @org/platform-eng @org/security
+/templates/project/.github/workflows/ @org/platform-eng @org/security
+/.github/                           @org/platform-eng @org/security
+/scripts/                           @org/platform-eng @org/security
+/AGENTS.md                          @org/platform-eng
+/CLAUDE.md                          @org/platform-eng

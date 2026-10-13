@@ -1,0 +1,17 @@
+{
+  "//": "managed-by: agentic-playbook v1.0.0 — merge into package.json \"scripts\". Names are required (docs/06 §6.2); implementations may vary.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "test:unit": "vitest run --coverage",
+    "test:watch": "vitest",
+    "test:integration": "echo 'no integration layer in this package' && exit 0",
+    "test:e2e": "playwright test",
+    "test:mutation": "stryker run --incremental",
+    "perf:check": "next build && size-limit && lhci autorun",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test:unit && pnpm build"
+  }
+}

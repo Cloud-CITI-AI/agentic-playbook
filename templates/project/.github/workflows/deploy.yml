@@ -1,0 +1,65 @@
+# managed-by: agentic-playbook v1.0.0
+# Promotion: staging (automatic) -> production (human approval via GitHub Environment "production").
+# Cloud auth is OIDC only. Replace the <<FILL>> steps with your platform's commands (Argo Rollouts, ECS, Cloud Run, AKS...).
+name: deploy
+on:
+  workflow_dispatch:
+    inputs:
+      tag: {description: "Release tag to deploy", required: true}
+  release:
+    types: [published]
+permissions: {}
+concurrency:
+  group: deploy-${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    environment: staging
+    permissions: {contents: read, id-token: write, attestations: read}
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - name: Verify provenance before deploying (N8)
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          gh attestation verify "oci://<<FILL: image>>:${{ inputs.tag || github.event.release.tag_name }}" -R "${{ github.repository }}"
+      - name: Cloud login (OIDC, staging deploy role)
+        run: |
+          echo "<<FILL: e.g. aws-actions/configure-aws-credentials with role-to-assume>>"
+      - name: Run expand migrations
+        run: |
+          echo "<<FILL: migration command; must be backward compatible with the running version>>"
+      - name: Deploy
+        run: |
+          echo "<<FILL: deploy command>>"
+      - name: Smoke tests
+        run: |
+          echo "<<FILL: pnpm test:smoke --base-url $STAGING_URL>>"
+      - name: DAST baseline (OWASP ZAP)
+        uses: zaproxy/action-baseline@v0.14.0
+        with:
+          target: '<<FILL: https://staging.example.internal>>'
+          fail_action: true
+
+  production:
+    needs: staging
+    runs-on: ubuntu-latest
+    environment: production   # required reviewers configured on the environment; agents are never reviewers
+    permissions: {contents: read, id-token: write, attestations: read}
+    steps:
+      - name: Kill-switch check
+        if: vars.DEPLOYS_FROZEN == 'true'
+        run: |
+          echo "Deploys are frozen (vars.DEPLOYS_FROZEN)"
+          exit 1
+      - name: Cloud login (OIDC, production deploy role)
+        run: echo "<<FILL>>"
+      - name: Canary 5% -> analyse -> 25% -> 50% -> 100%
+        run: |
+          echo "<<FILL: progressive rollout; abort if error rate or p99 latency breaches SLO for 10 min>>"
+      - name: Automatic rollback on failure
+        if: failure()
+        run: |
+          echo "<<FILL: rollback command (previous image digest); page on-call>>"
