@@ -11,6 +11,10 @@ Every entry that changes agent behaviour must reference its rule proposal (`RP-N
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-10-13
+### Added
+- Project template `.claude/settings.json`: a `PowerShell(...)` deny rule for every `Bash(...)` deny rule, plus `Invoke-WebRequest`/`iwr` and `Invoke-RestMethod`/`irm`, which `curl` and `wget` alias to in Windows PowerShell. On Windows, Claude Code runs commands through its PowerShell tool, so the Bash-only rules never matched there. This changes agent behaviour (it adds denials), but no RP or eval run backs it: it was added at the cloudcitiwa owner's direct request after the timesheet build on Windows.
+
 ## [1.0.4] - 2026-10-13
 ### Fixed
 - `reusable-ci-node.yml`, `test` job: build each package's workspace dependencies (`pnpm --filter "{.}^..." --if-present run build`) before lint. Packages that import workspace libraries exported from `dist` failed lint and typecheck with "type could not be resolved".
