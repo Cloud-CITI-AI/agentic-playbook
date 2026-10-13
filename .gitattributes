@@ -1,0 +1,2 @@
+# Shell and Python scripts must keep LF line endings: bash and the hooks break on CRLF.
+* text=auto eol=lf
