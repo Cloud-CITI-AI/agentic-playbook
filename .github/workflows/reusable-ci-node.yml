@@ -29,6 +29,8 @@ jobs:
         with: {node-version: "${{ inputs.node-version }}", cache: pnpm}
       - name: Install (frozen lockfile)
         run: pnpm install --frozen-lockfile
+      - name: Build workspace dependencies (their types and code are imported from dist)
+        run: pnpm --filter "{.}^..." --if-present run build
       - name: Lint
         run: pnpm lint
       - name: Typecheck
@@ -88,7 +90,9 @@ jobs:
         with: {node-version: "${{ inputs.node-version }}", cache: pnpm}
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm build
+      - name: Build the workspace (the e2e stack starts every service from its build output)
+        working-directory: .
+        run: pnpm -r --if-present run build
       - name: End-to-end, accessibility and visual tests
         run: pnpm test:e2e
       - name: Report flaky tests (passed on retry)

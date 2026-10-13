@@ -11,6 +11,11 @@ Every entry that changes agent behaviour must reference its rule proposal (`RP-N
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-10-13
+### Fixed
+- `reusable-ci-node.yml`, `test` job: build each package's workspace dependencies (`pnpm --filter "{.}^..." --if-present run build`) before lint. Packages that import workspace libraries exported from `dist` failed lint and typecheck with "type could not be resolved".
+- `reusable-ci-node.yml`, `e2e` job: build the whole workspace from the repo root, because an e2e stack can start services the tested package does not depend on.
+
 ## [1.0.3] - 2026-10-13
 ### Fixed
 - Project template `playbook-sync.yml`: suppress zizmor's `artipacked` finding on its checkout, with the reason inline. The job needs persisted credentials to `git push` the sync branch, and it uploads no artifacts. Before this, `security / workflows` failed on medium severity.
