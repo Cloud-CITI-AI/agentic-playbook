@@ -11,6 +11,18 @@ Every entry that changes agent behaviour must reference its rule proposal (`RP-N
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-13
+### Fixed
+- `protect-instruction-files.sh` now works on Windows. Before this, it called `python3`, which on Windows is often the Microsoft Store placeholder (exit 49), so every call ended in a non-blocking error and nothing was protected. It now uses the first of `python3`, `python` or `py` that actually runs, and blocks (fails closed) when there is no Python or the hook input cannot be parsed.
+- Windows paths: backslashes in file paths, the project directory and commands are normalised, and path matching is case-insensitive.
+- Commands that name a protected directory without a trailing slash (`rm -rf .github`) are now blocked.
+- An overwrite can no longer hide behind the `LESSONS.md` append exception in the same command. Appends are matched in Python, not with BSD-incompatible `sed` flags.
+### Added
+- The hook checks PowerShell tool calls (`Set-Content`, `Add-Content`, `Out-File`, `New-Item`, `Remove-Item`, `Copy-Item`, `Move-Item`, `Rename-Item`, `Clear-Content`, their aliases, and `[IO.File]` writes). The project template's hook matcher now includes `PowerShell`.
+- `evals/hook-tests.sh`: 18 new cases (30 in total), covering Windows paths, PowerShell, the closed gaps, a broken `python3` stub and no Python at all.
+
+This changes agent behaviour, so it is a MINOR release. No RP or eval run backs it: it was added at the cloudcitiwa owner's direct request (timesheet build report, rule proposal 5).
+
 ## [1.1.0] - 2026-10-13
 ### Added
 - Project template `.claude/settings.json`: a `PowerShell(...)` deny rule for every `Bash(...)` deny rule, plus `Invoke-WebRequest`/`iwr` and `Invoke-RestMethod`/`irm`, which `curl` and `wget` alias to in Windows PowerShell. On Windows, Claude Code runs commands through its PowerShell tool, so the Bash-only rules never matched there. This changes agent behaviour (it adds denials), but no RP or eval run backs it: it was added at the cloudcitiwa owner's direct request after the timesheet build on Windows.
