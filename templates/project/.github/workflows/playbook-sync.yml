@@ -20,7 +20,7 @@ jobs:
           private-key: ${{ secrets.PLAYBOOK_BOT_PRIVATE_KEY }}
           permission-contents: write        # scope the token to what this job needs (zizmor)
           permission-pull-requests: write
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4   # zizmor: ignore[artipacked] -- needs persisted credentials to git push the sync branch; uploads no artifacts
         with: {token: "${{ steps.app.outputs.token }}"}
       - name: Find latest playbook release
         id: latest

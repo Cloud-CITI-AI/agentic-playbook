@@ -11,6 +11,10 @@ Every entry that changes agent behaviour must reference its rule proposal (`RP-N
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-10-13
+### Fixed
+- Project template `playbook-sync.yml`: suppress zizmor's `artipacked` finding on its checkout, with the reason inline. The job needs persisted credentials to `git push` the sync branch, and it uploads no artifacts. Before this, `security / workflows` failed on medium severity.
+
 ## [1.0.2] - 2026-10-13
 ### Changed
 - Every third-party action in the reusable workflows and project templates is pinned to a commit SHA (`@<sha> # <tag>`), as zizmor's blanket policy requires.
