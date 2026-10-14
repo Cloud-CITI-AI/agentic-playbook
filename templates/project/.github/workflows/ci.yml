@@ -14,7 +14,7 @@ concurrency:
 jobs:
   node:
     # Remove this job if the repo has no Node/TypeScript packages.
-    uses: cloudcitiwa/agentic-playbook/.github/workflows/reusable-ci-node.yml@<<PLAYBOOK_SHA>> # v1.0.0
+    uses: cloud-citi-ai/agentic-playbook/.github/workflows/reusable-ci-node.yml@<<PLAYBOOK_SHA>> # v1.0.0
     permissions:
       contents: read
       pull-requests: read
@@ -27,7 +27,7 @@ jobs:
 
   python:
     # Remove this job if the repo has no Python packages.
-    uses: cloudcitiwa/agentic-playbook/.github/workflows/reusable-ci-python.yml@<<PLAYBOOK_SHA>> # v1.0.0
+    uses: cloud-citi-ai/agentic-playbook/.github/workflows/reusable-ci-python.yml@<<PLAYBOOK_SHA>> # v1.0.0
     permissions:
       contents: read
     with:
@@ -45,7 +45,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: {fetch-depth: 0, persist-credentials: false}
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with: {repository: cloudcitiwa/agentic-playbook, ref: v1.0.0, path: .playbook, persist-credentials: false}
+        with: {repository: cloud-citi-ai/agentic-playbook, ref: v1.0.0, path: .playbook, persist-credentials: false}
       - name: Enforce PR size (N3)
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}

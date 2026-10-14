@@ -33,7 +33,7 @@ jobs:
       id-token: write       # OIDC for keyless signing and cloud registry auth
       attestations: write
     env:
-      IMAGE: '<<FILL: ghcr.io/cloudcitiwa/<service>>>'
+      IMAGE: '<<FILL: ghcr.io/cloud-citi-ai/<service>>>'
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: {persist-credentials: false}

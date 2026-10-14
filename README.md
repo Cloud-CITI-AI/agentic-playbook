@@ -34,7 +34,7 @@ Agents get the short machine-followable rules in `AGENTS.md`; humans get the rea
 git switch -c chore/adopt-agentic-playbook
 
 # Pick the profile(s) that match the repo: frontend | backend-node | backend-python (comma-separated for monorepos)
-curl -fsSL https://raw.githubusercontent.com/cloudcitiwa/agentic-playbook/v1.0.0/scripts/bootstrap.sh -o /tmp/bootstrap.sh
+curl -fsSL https://raw.githubusercontent.com/cloud-citi-ai/agentic-playbook/v1.0.0/scripts/bootstrap.sh -o /tmp/bootstrap.sh
 less /tmp/bootstrap.sh            # read it before running; never pipe remote scripts straight into a shell
 bash /tmp/bootstrap.sh --version v1.0.0 --profile frontend --package-dir apps/web
 bash /tmp/bootstrap.sh --version v1.0.0 --profile backend-node --package-dir services/api --skip-root

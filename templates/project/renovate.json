@@ -11,6 +11,6 @@
     { "matchUpdateTypes": ["minor", "patch"], "matchCurrentVersion": "!/^0/", "groupName": "non-major dependencies", "schedule": ["before 6am on monday"] },
     { "matchUpdateTypes": ["major"], "dependencyDashboardApproval": true },
     { "matchManagers": ["github-actions"], "groupName": "github actions", "minimumReleaseAge": "7 days" },
-    { "matchPackageNames": ["cloudcitiwa/agentic-playbook"], "enabled": false }
+    { "matchPackageNames": ["cloud-citi-ai/agentic-playbook"], "enabled": false }
   ]
 }
