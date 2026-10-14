@@ -10,6 +10,8 @@ Version semantics for the playbook:
 Every entry that changes agent behaviour must reference its rule proposal (`RP-NNNN`) and the eval run that validated it.
 
 ## [Unreleased]
+
+## [1.2.1] - 2026-10-14
 ### Changed
 - Repository moved to `cloud-citi-ai/agentic-playbook`: README bootstrap command, `scripts/bootstrap.sh` and the project templates (`ci`, `security`, `playbook-guard`, `playbook-sync`, `lessons-digest`, `release` image placeholder, `renovate.json`, issue template) now point at the new organisation. Link fix only; no rule change.
 ### Added
