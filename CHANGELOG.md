@@ -10,6 +10,8 @@ Version semantics for the playbook:
 Every entry that changes agent behaviour must reference its rule proposal (`RP-NNNN`) and the eval run that validated it.
 
 ## [Unreleased]
+### Changed
+- Repository moved to `cloud-citi-ai/agentic-playbook`: README bootstrap command, `scripts/bootstrap.sh` and the project templates (`ci`, `security`, `playbook-guard`, `playbook-sync`, `lessons-digest`, `release` image placeholder, `renovate.json`, issue template) now point at the new organisation. Link fix only; no rule change.
 ### Added
 - `docs/08-cicd-and-deployment.md` §8.6.1: how to adapt the single-package `release.yml` template for multi-package repos (matrix from `paths_released` and per-package versions, lowercase image names). Documentation only; no template or rule change.
 

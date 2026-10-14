@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with: {persist-credentials: false}
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with: {repository: cloudcitiwa/agentic-playbook, ref: v1.0.0, path: .playbook, persist-credentials: false}
+        with: {repository: cloud-citi-ai/agentic-playbook, ref: v1.0.0, path: .playbook, persist-credentials: false}
       - name: Build digest
         run: python3 .playbook/scripts/validate-lessons.py --file LESSONS.md --digest --since-days 7 > digest.md
       - name: Open digest issue
