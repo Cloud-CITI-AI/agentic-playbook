@@ -75,3 +75,33 @@ Rollback must never require a down-migration: expand/contract keeps the previous
 ## 8.6 Release notes automation
 
 release-please groups commits by type into per-component release notes; the release PR is where a human adds "Upgrade notes" for breaking changes; on publish, the deploy workflow posts the notes and the attestation link to the release channel. Agent-authored changes appear with the PR number, which links to the disclosure.
+
+### 8.6.1 Multi-package repos (several images from one release workflow)
+
+The project template `release.yml` is written for **one** package: one image (`IMAGE`), one Dockerfile `context`, and the top-level `tag_name` output of release-please. When `release-please-config.json` lists several `packages`, release-please releases them independently and **does not set the top-level `tag_name`**. Instead it sets `paths_released` (a JSON array of package paths) and per-package outputs such as `<path>--version` and `<path>--tag_name`. Turning the template into a fixed matrix of all services while keeping `tag_name` produces images tagged `name:` (empty), which `docker build` rejects. It also builds every image even when only one package was released.
+
+Adapt it like this:
+
+1. In the `release-please` job, add a step after the release-please action that builds the matrix from the outputs, and expose it as a job output (`matrix: ${{ steps.matrix.outputs.matrix }}`):
+
+   ```yaml
+   - id: matrix
+     if: steps.rp.outputs.releases_created == 'true'
+     env:
+       RP_OUTPUTS: ${{ toJSON(steps.rp.outputs) }}   # pass outputs via env, never inline in `run` (zizmor template-injection)
+     run: |
+       matrix=$(printf '%s' "$RP_OUTPUTS" | jq -c --arg repo "${GITHUB_REPOSITORY,,}" '
+         {"apps/web": "web", "services/api": "api", "services/worker": "worker"} as $services
+         | {include: [ (.paths_released | fromjson[]) as $path
+             | select($services[$path] != null)
+             | { service: $services[$path], context: $path,
+                 version: .[$path + "--version"],
+                 image: "ghcr.io/\($repo)-\($services[$path])" } ]}')
+       echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+   ```
+
+   Replace the path → service map with your packages.
+2. In `build-and-attest`, use `strategy: {fail-fast: false, matrix: ${{ fromJSON(needs.release-please.outputs.matrix) }}}`, guard the job with `needs.release-please.outputs.matrix != ''`, and use `${{ matrix.image }}`, `${{ matrix.version }}` and `${{ matrix.context }}/Dockerfile` (with `context: .` when Dockerfiles copy workspace packages) instead of `IMAGE`, `tag` and the fixed context.
+3. **Image names must be lowercase.** `github.repository` keeps the owner's capitals (`My-Org/app`); GHCR rejects `ghcr.io/My-Org/...`. The `${GITHUB_REPOSITORY,,}` above lowercases it.
+
+Reference implementation: the timesheet repo's `release.yml` after the fix for empty image tags (three packages: `apps/web`, `services/api`, `services/worker`).
